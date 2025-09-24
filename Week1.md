@@ -250,6 +250,97 @@ was wondering anyone out there could enlighten this car.
 - 철자 자체에만 집중하여 잘라내므로 **의미가 훼손될 수 있음**
 
 **[예시]**
+```
+원형: policy → stemming 결과: polici
+원형: formal → stemming 결과: form
+```
+
+- 정확한 문법적 분석 없이 규칙 기반으로 자름
+- 빠르지만 정확도는 낮을 수 있음
+
+**✅ [Porter Stemmer 예제 코드 및 결과]**
+```
+from nltk.stem import PorterStemmer
+
+stemmer = PorterStemmer()
+words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'meeting']
+
+for word in words:
+print(f'{word} → {stemmer.stem(word)}')
+```
+```
+결과:
+policy → polici
+doing → do
+organization → organ
+have → have
+going → go
+love → love
+lives → live
+fly → fli
+meeting → meet
+```
+
+- ‘have’, ‘love’는 변화 없음 → 포터 알고리즘이 형태 변화 없다고 판단한 경우
+
+---
+
+### 📌 표제어 추출 (Lemmatization)
+
+- 단어의 **표제어(lemma)** 를 찾아가는 작업
+- 문맥과 품사를 고려하여 변형된 단어를 그 **기본형**으로 복원
+- 어간 추출보다 정확도 높지만, 속도는 느림
+
+**[예시]**
+```
+am, are, is → be
+```
+
+- 사전(dictionary)을 참고하여 의미 기반으로 복원
+
+**✅ [WordNet Lemmatizer 예제 코드 및 결과]**
+```
+from nltk.stem import WordNetLemmatizer
+
+lemmatizer = WordNetLemmatizer()
+words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'meeting']
+
+for word in words:
+print(f'{word} → {lemmatizer.lemmatize(word)}')
+```
+```
+결과:
+policy → policy
+doing → doing
+organization → organization
+have → have
+going → going
+love → love
+lives → life
+fly → fly
+meeting → meeting
+```
+- 기본적으로 명사로 판단하여 동사 등의 경우 **품사 명시 필요**
+
+**✅ [품사 명시 예제]**
+```
+lemmatizer.lemmatize('doing', pos='v') → do
+lemmatizer.lemmatize('fly', pos='v') → fly
+```
+
+---
+
+### 📌 어간 추출 vs 표제어 추출 요약 비교
+
+| 항목 | 어간 추출 (Stemming) | 표제어 추출 (Lemmatization) |
+|------|-----------------------|------------------------------|
+| 방법 | 단순 규칙 기반 절단     | 사전 기반 변환               |
+| 속도 | 빠름                  | 느림                         |
+| 정확도 | 낮음 (문맥 고려 안 함) | 높음 (문맥 및 품사 고려)     |
+| 예시 | policy → polici       | lives → life                |
+
+<br><br><br>
+
 
 ## 2-4. 불용어
 
