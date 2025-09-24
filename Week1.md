@@ -470,11 +470,8 @@ print('불용어 제거 후 :',result)
 - 각 단어에 고유한 인덱스를 부여
 - 빈도수 기반으로 정렬하여 인덱스를 부여하기도 함
 
----
 
-### 📌 파이썬 실습 예시
-
-**[단어 집합 만들기]**
+**✅ [단어 집합 만들기 예시 코드 및 결과]**
 ```python
 from nltk.tokenize import word_tokenize
 
@@ -486,7 +483,8 @@ print(tokens)
 ['The', 'earth', 'is', 'an', 'awesome', 'place', 'live']
 ```
 
-**[정수 인코딩]**
+
+**✅ [정수 인코딩 예시 코드 및 결과]**
 ```python
 vocab = {t: i for i, t in enumerate(tokens)}
 print(vocab)
@@ -495,9 +493,8 @@ print(vocab)
 {'The': 0, 'earth': 1, 'is': 2, 'an': 3, 'awesome': 4, 'place': 5, 'live': 6}
 ```
 
----
 
-### 📌 케라스(Keras) 활용
+**✅ [케라스(Keras) 활용 예시 코드 및 결과]**
 - `Tokenizer` 객체를 이용해 단어 집합 자동 생성 및 정수 인코딩 가능
 ```python
 from tensorflow.keras.preprocessing.text import Tokenizer
@@ -509,12 +506,215 @@ tokenizer.fit_on_texts(sentences)
 print(tokenizer.word_index)  # 단어 집합
 print(tokenizer.texts_to_sequences(sentences))  # 정수 인코딩 결과
 ```
+
 <br><br><br>
 
-## 2-7. 패딩
+## 2-7. 패딩(Padding)
 
-## 2-8. 원핫인코딩
+자연어 문장은 길이가 다르기 때문에 기계 학습 모델에 입력하기 위해서는 길이를 맞춰야 함.  
+짧은 문장은 뒤에 **패딩(padding) 토큰**을 붙여 동일한 길이로 맞추는 과정을 거침.
 
-## 2-9.  데이터의 분리
+---
 
-## 2-10. 한국어 전처리 패키지
+### 📌 패딩의 필요성
+
+- 딥러닝 모델 입력은 동일한 크기의 행렬이어야 함
+- 문장마다 길이가 다르면 학습 불가
+- 따라서 가장 긴 문장의 길이에 맞춰 나머지를 채움
+
+---
+
+### 📌 패딩 방식
+
+- 주로 숫자 `0`을 패딩 토큰으로 사용
+- 패딩 위치:
+  - 앞에 붙이는 경우 (pre-padding)
+  - 뒤에 붙이는 경우 (post-padding)
+
+**✅ [케라스(Keras)에서의 패딩 예시 코드 및 결과]**
+
+```python
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+sentences = [[1, 2, 3], [4, 5], [6]]
+padded = pad_sequences(sentences)
+print(padded)
+```
+```python
+[[1 2 3]
+ [0 4 5]
+ [0 0 6]]
+```
+- 기본은 pre-padding 방식
+- 옵션 padding='post' 로 설정하면 `post-padding` 가능
+
+```python
+padded = pad_sequences(sentences, padding='post')
+print(padded)
+```
+```python
+[[1 2 3]
+ [4 5 0]
+ [6 0 0]]
+```
+
+---
+
+### 📌 패딩시 주의사항
+
+- 패딩으로 추가된 0은 실제 단어가 아니므로 모델 학습 시 무시되도록 처리 필요
+- RNN, LSTM 등에서는 masking 기법을 활용하여 패딩 위치를 무시함
+
+<br><br><br>
+
+
+## 2-8. 원-핫 인코딩(One-Hot Encoding)
+
+단어를 고유한 정수로 변환한 뒤, 그 정수를 다시 벡터로 표현하는 방법.  
+각 단어는 단어 집합의 크기만큼의 차원을 가진 벡터로 표현되며, 해당 인덱스만 1이고 나머지는 모두 0임.
+
+---
+
+### 📌 원-핫 인코딩 과정
+
+1. 단어 집합(vocabulary) 구축
+2. 각 단어에 정수 인덱스 부여
+3. 인덱스를 기준으로 원-핫 벡터 생성
+
+**[예시]**
+```python
+문장: "나는 자연어 처리를 배운다"
+단어 집합: {'나는':0, '자연어':1, '처리':2, '를':3, '배운다':4}
+
+'자연어' → [0, 1, 0, 0, 0]
+'배운다' → [0, 0, 0, 0, 1]
+```
+
+**✅ [구현 예시 코드 및 결과]**
+```python
+from konlpy.tag import Okt
+
+okt = Okt()
+tokens = okt.morphs("나는 자연어 처리를 배운다")
+vocab = {t: i for i, t in enumerate(tokens)}
+
+def one_hot_encoding(word, vocab):
+    one_hot = [0] * len(vocab)
+    idx = vocab[word]
+    one_hot[idx] = 1
+    return one_hot
+
+print(one_hot_encoding("자연어", vocab))
+```
+```python
+[0, 1, 0, 0, 0]
+```
+
+**✅ [케라스dml to_categorical 함수 예시 코드 및 결과]**
+```python
+from tensorflow.keras.utils import to_categorical
+
+encoded = [0, 1, 2, 3]
+one_hot = to_categorical(encoded)
+print(one_hot)
+```
+```python
+[[1. 0. 0. 0.]
+ [0. 1. 0. 0.]
+ [0. 0. 1. 0.]
+ [0. 0. 0. 1.]]
+```
+
+---
+
+### 📌 원-핫 인코딩의 한계
+- 벡터 차원이 단어 집합 크기와 같음 → 단어 수가 많아지면 차원 폭발 발생
+- 단어 간 유사도 표현 불가능
+  - 예: '강아지'와 '개'는 유사하지만 원-핫 벡터는 전혀 다름
+- 이후 분산 표현(Distributed Representation), 즉 임베딩 기법으로 발전 및 보완됨
+
+
+<br><br><br>
+
+## 2-9. 데이터의 분리(Splitting Data)
+
+- 머신 러닝이나 딥러닝 모델을 학습할 때 데이터는 보통 **훈련용 데이터와 평가용 데이터**로 나눔.  
+- 모델의 성능을 공정하게 측정하고, 과적합을 방지하기 위해 데이터 분리는 필수 과정임.
+
+---
+
+### 📌 데이터 분리 목적
+
+- 훈련 데이터(train set): 모델 학습에 사용
+- 테스트 데이터(test set): 모델의 일반화 성능 평가에 사용
+- 일부는 검증 데이터(validation set)로도 나누어 하이퍼파라미터 조정에 활용
+
+**✅ [데이터 분리 예시 코드 및 결과]**
+
+- 사이킷런의 `train_test_split` 함수를 활용하여 데이터를 쉽게 분리 가능함.
+
+```python
+from sklearn.model_selection import train_test_split
+
+X = [i for i in range(10)]
+y = [i*2 for i in range(10)]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print("훈련 데이터:", X_train, y_train)
+print("테스트 데이터:", X_test, y_test)
+```
+
+- 일반적으로 훈련:테스트 = 8:2 또는 7:3
+- 데이터가 충분하다면 훈련:검증:테스트 = 6:2:2
+  - 데이터 크기와 문제 특성에 따라 적절히 조정
+
+<br><br><br>
+
+## 2-10. 한국어 전처리 패키지(Text Preprocessing Tools for Korean Text)
+
+- 한국어는 교착어로 조사, 어미 등이 단어에 붙어 있기 때문에 영어보다 전처리가 복잡함.  
+- 이를 위해 다양한 형태소 분석기와 전처리 패키지를 활용함.
+
+---
+
+### 📌 KoNLPy
+
+- 파이썬에서 한국어 형태소 분석기를 사용할 수 있게 만든 패키지
+- 지원 분석기: Okt, Mecab, Komoran, Hannanum, Kkma
+- 주요 기능:
+  - `morphs(text)` : 형태소 추출
+  - `pos(text)` : 형태소 + 품사 태깅
+  - `nouns(text)` : 명사만 추출
+
+**✅ [KoNLPy 예시 코드 및 결과]**
+```python
+from konlpy.tag import Okt
+
+okt = Okt()
+print(okt.morphs("나는 자연어 처리를 배운다"))
+print(okt.pos("나는 자연어 처리를 배운다"))
+print(okt.nouns("나는 자연어 처리를 배운다"))
+```
+
+---
+
+### 📌 soynlp
+- 비지도학습 기반의 한국어 형태소 분석 패키지
+- 띄어쓰기, 단어 점수 계산, 토큰화 등 기능 지원
+- 학습 코퍼스 기반으로 단어의 응집도(cohesion)와 브랜칭 엔트로피(branching entropy) 계산 가능
+
+---
+
+### 📌 khaiii
+- 카카오에서 공개한 한국어 형태소 분석기
+- 딥러닝 기반으로 높은 정확도 제공
+- 다른 분석기 대비 설치와 환경 설정이 복잡할 수 있음
+
+---
+
+### 📌 kss
+- 한국어 문장 토큰화에 특화된 패키지
+- 종결 어미, 문장 부호 등을 활용해 문장 단위 분리
+- 한국어의 문장 경계 인식에 자주 활용됨
+
