@@ -11,7 +11,7 @@
 - 구두점, 특수문자 등을 전부 제거하면 토큰이 의미를 잃는 경우도 있음
 
 **[예시]**
-```
+```python
 문장: Time is an illusion. Lunchtime double so!
 결과: ['Time', 'is', 'an', 'illusion', 'Lunchtime', 'double', 'so']
 ```
@@ -21,7 +21,7 @@
   - NLTK의 `WordPunctTokenizer` : Don과 '와 t로 분리 / Jone과 '와 s로 분리
   - 케라스의 `text_to_word_sequence` : all소문자화 + don't/jone's으로 분리
 
-```
+```python
 from nltk.tokenize import word_tokenize
 from nltk.tokenize import WordPunctTokenizer
 from tensorflow.keras.preprocessing.text import text_to_word_sequence
@@ -34,7 +34,7 @@ from tensorflow.keras.preprocessing.text import text_to_word_sequence
 **✅ [Penn Treebank Tokenization 예제 코드 및 결과]**
 - 규칙 1. 하이푼으로 구성된 단어는 하나로 유지한다.
 - 규칙 2. doesn't와 같이 아포스트로피로 '접어'가 함께하는 단어는 분리해준다.
- ```
+```python
 from nltk.tokenize import TreebankWordTokenizer
 
 tokenizer = TreebankWordTokenizer()
@@ -42,7 +42,7 @@ tokenizer = TreebankWordTokenizer()
 text = "Starting a home-based restaurant may be an ideal. it doesn't have a food chain or restaurant of their own."
 print('트리뱅크 워드토크나이저 :',tokenizer.tokenize(text))
 ```
-```
+```python
 트리뱅크 워드토크나이저 : ['Starting', 'a', 'home-based', 'restaurant', 'may', 'be', 'an', 'ideal.', 'it', 'does', "n't", 'have', 'a', 'food', 'chain', 'or', 'restaurant', 'of', 'their', 'own', '.']
 
 ```
@@ -56,7 +56,7 @@ print('트리뱅크 워드토크나이저 :',tokenizer.tokenize(text))
 - 마침표(`.`)는 약어, 숫자, 웹 주소 등에 사용되기도 하므로 처리 주의 필요
 
 **[예시]**
-```
+```python
 문장1: IP 192.168.56.31 서버에 들어가서 로그 파일 저장해서 aaa@gmail.com로 결과 좀 보내줘. 그 후 점심 먹으러 가자.
 문장2: Since I'm actively looking for Ph.D. students, I get the same question a dozen times every year.
 
@@ -66,31 +66,31 @@ print('트리뱅크 워드토크나이저 :',tokenizer.tokenize(text))
 
 **✅ [NLTK에서의 sent_tokenize예제 코드 및 결과]**
 - NLTK는 단순히 마침표를 구분자로 하여 문장을 구분하지 않음
-```
+```python
 from nltk.tokenize import sent_tokenize
 
 text = "His barber kept his word. But keeping such a huge secret to himself was driving him crazy. Finally, the barber went up a mountain and almost to the edge of a cliff. He dug a hole in the midst of some reeds. He looked about, to make sure no one was near."
 print('문장 토큰화1 :',sent_tokenize(text))
 ```
-```
+```python
 문장 토큰화1 : ['His barber kept his word.', 'But keeping such a huge secret to himself was driving him crazy.', 'Finally, the barber went up a mountain and almost to the edge of a cliff.', 'He dug a hole in the midst of some reeds.', 'He looked about, to make sure no one was near.']
 ```
 - NLTK는 Ph.D.를 문장 내의 단어로 인식하여 성공적으로 문장 구분 성공
-```
+```python
 text = "I am actively looking for Ph.D. students. and you are a Ph.D student."
 print('문장 토큰화2 :',sent_tokenize(text))
 ```
-```
+```python
 문장 토큰화2 : ['I am actively looking for Ph.D. students.', 'and you are a Ph.D student.']
 ```
 **✅ [KSS예제 코드 및 결과]**
-```
+```python
 import kss
 
 text = '딥 러닝 자연어 처리가 재미있기는 합니다. 그런데 문제는 영어보다 한국어로 할 때 너무 어렵습니다. 이제 해보면 알걸요?'
 print('한국어 문장 토큰화 :',kss.split_sentences(text))
 ```
-```
+```python
 한국어 문장 토큰화 : ['딥 러닝 자연어 처리가 재미있기는 합니다.', '그런데 문제는 영어보다 한국어로 할 때 너무 어렵습니다.', '이제 해보면 알걸요?']
 ```
 
@@ -129,7 +129,7 @@ print('한국어 문장 토큰화 :',kss.split_sentences(text))
 
 > ✅ NLTK에서는 Penn Treebank POS Tags라는 기준을 사용하여 품사를 태깅
 - PRP는 인칭 대명사, VBP는 동사, RB는 부사, VBG는 현재부사, IN은 전치사, NNP는 고유 명사, NNS는 복수형 명사, CC는 접속사, DT는 관사를 의미
-```
+```python
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 
@@ -139,13 +139,13 @@ tokenized_sentence = word_tokenize(text)
 print('단어 토큰화 :',tokenized_sentence)
 print('품사 태깅 :',pos_tag(tokenized_sentence))
 ```
-```
+```python
 단어 토큰화 : ['I', 'am', 'actively', 'looking', 'for', 'Ph.D.', 'students', '.', 'and', 'you', 'are', 'a', 'Ph.D.', 'student', '.']
 품사 태깅 : [('I', 'PRP'), ('am', 'VBP'), ('actively', 'RB'), ('looking', 'VBG'), ('for', 'IN'), ('Ph.D.', 'NNP'), ('students', 'NNS'), ('.', '.'), ('and', 'CC'), ('you', 'PRP'), ('are', 'VBP'), ('a', 'DT'), ('Ph.D.', 'NNP'), ('student', 'NN'), ('.', '.')]
 ```
 > ✅ KoNLPy(코엔엘파이)의 Okt형태소 분석기를 사용하여 토큰화 수행
 - 코엔엘파이를 통해서 사용할 수 있는 형태소 분석기 : Okt(Open Korea Text), 메캅(Mecab), 코모란(Komoran), 한나눔(Hannanum), 꼬꼬마(Kkma)
-```
+```python
 from konlpy.tag import Okt
 from konlpy.tag import Kkma
 
@@ -156,7 +156,7 @@ print('OKT 형태소 분석 :',okt.morphs("열심히 코딩한 당신, 연휴에
 print('OKT 품사 태깅 :',okt.pos("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
 print('OKT 명사 추출 :',okt.nouns("열심히 코딩한 당신, 연휴에는 여행을 가봐요")) 
 ```
-```
+```python
 OKT 형태소 분석 : ['열심히', '코딩', '한', '당신', ',', '연휴', '에는', '여행', '을', '가봐요']
 OKT 품사 태깅 : [('열심히', 'Adverb'), ('코딩', 'Noun'), ('한', 'Josa'), ('당신', 'Noun'), (',', 'Punctuation'), ('연휴', 'Noun'), ('에는', 'Josa'), ('여행', 'Noun'), ('을', 'Josa'), ('가봐요', 'Verb')]
 OKT 명사 추출 : ['코딩', '당신', '연휴', '여행']
@@ -167,12 +167,12 @@ OKT 명사 추출 : ['코딩', '당신', '연휴', '여행']
   - 분석기.nouns : 명사 추출
 
 > ✅ KoNLPy(코엔엘파이)의 꼬꼬마 형태소 분석기를 사용하여 토큰화 수행
-```
+```python
 print('꼬꼬마 형태소 분석 :',kkma.morphs("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
 print('꼬꼬마 품사 태깅 :',kkma.pos("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))
 print('꼬꼬마 명사 추출 :',kkma.nouns("열심히 코딩한 당신, 연휴에는 여행을 가봐요"))  
 ```
-```
+```python
 꼬꼬마 형태소 분석 : ['열심히', '코딩', '하', 'ㄴ', '당신', ',', '연휴', '에', '는', '여행', '을', '가보', '아요']
 꼬꼬마 품사 태깅 : [('열심히', 'MAG'), ('코딩', 'NNG'), ('하', 'XSV'), ('ㄴ', 'ETD'), ('당신', 'NP'), (',', 'SP'), ('연휴', 'NNG'), ('에', 'JKM'), ('는', 'JX'), ('여행', 'NNG'), ('을', 'JKO'), ('가보', 'VV'), ('아요', 'EFN')]
 꼬꼬마 명사 추출 : ['코딩', '당신', '연휴', '여행']
@@ -206,7 +206,7 @@ print('꼬꼬마 명사 추출 :',kkma.nouns("열심히 코딩한 당신, 연휴
 ```
  
 **✅ [정규 표현식을 활용한 정제 예시 코드 및 결과]**
-```
+```python
 import re
 text = "I was wondering if anyone out there could enlighten me on this car."
 
@@ -214,7 +214,7 @@ text = "I was wondering if anyone out there could enlighten me on this car."
 shortword = re.compile(r'\W*\b\w{1,2}\b')
 print(shortword.sub('', text))
 ```
-```
+```python
 was wondering anyone out there could enlighten this car.
 ```
 
@@ -259,7 +259,7 @@ was wondering anyone out there could enlighten this car.
 - 빠르지만 정확도는 낮을 수 있음
 
 **✅ [Porter Stemmer 예제 코드 및 결과]**
-```
+```python
 from nltk.stem import PorterStemmer
 
 stemmer = PorterStemmer()
@@ -268,7 +268,7 @@ words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'f
 for word in words:
 print(f'{word} → {stemmer.stem(word)}')
 ```
-```
+```python
 결과:
 policy → polici
 doing → do
@@ -299,7 +299,7 @@ am, are, is → be
 - 사전(dictionary)을 참고하여 의미 기반으로 복원
 
 **✅ [WordNet Lemmatizer 예제 코드 및 결과]**
-```
+```python
 from nltk.stem import WordNetLemmatizer
 
 lemmatizer = WordNetLemmatizer()
@@ -308,7 +308,7 @@ words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'f
 for word in words:
 print(f'{word} → {lemmatizer.lemmatize(word)}')
 ```
-```
+```python
 결과:
 policy → policy
 doing → doing
