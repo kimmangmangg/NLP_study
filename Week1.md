@@ -238,8 +238,9 @@ was wondering anyone out there could enlighten this car.
 
 ## 2-3. 어간 추출(Stemming) and 표제어 추출(Lemmatization)
 
-단어를 표준화된 형태로 변환하여 처리 단위를 줄이고, 단어 간 중복을 제거하는 작업임.  
-두 기법 모두 단어를 **기본형**이나 **원형**에 가깝게 변형시켜서 의미는 유지하면서 단어 수를 줄이는 데 사용됨.
+- 정규화 기법 중 코퍼스에 있는 단어의 개수를 줄일 수 있는 기법의 일종
+- 단어를 표준화된 형태로 변환하여 처리 단위를 줄이고, 단어 간 중복을 제거하는 작업임.  
+- 두 기법 모두 단어를 **기본형**이나 **원형**에 가깝게 변형시켜서 의미는 유지하면서 단어 수를 줄이는 데 사용됨.
 
 ---
 
@@ -247,97 +248,116 @@ was wondering anyone out there could enlighten this car.
 
 - 단어의 **어간(stem)** 을 추출하는 작업
 - 어간은 단어에서 **어미(접미사)** 를 제거한 나머지 부분
-- 철자 자체에만 집중하여 잘라내므로 **의미가 훼손될 수 있음**
+- 어간 추출 후에 나오는 결과 단어는 사전에 존재하지 않는 단어일 수도 있음
+- 정확한 문법적 분석 없이 규칙에만 집중하여 잘라내므로 **의미가 훼손될 수 있음**
+- 표제어 추출에 비해 빠르지만 정확도는 낮을 수 있음
 
 **[예시]**
 ```
-원형: policy → stemming 결과: polici
-원형: formal → stemming 결과: form
+어간 추출 전 : ['formalize', 'allowance', 'electricical']
+어간 추출 후 : ['formal', 'allow', 'electric']
 ```
 
-- 정확한 문법적 분석 없이 규칙 기반으로 자름
-- 빠르지만 정확도는 낮을 수 있음
+**✅ [NLTK의 PorterStemmer 예제 코드 및 결과]**
 
-**✅ [Porter Stemmer 예제 코드 및 결과]**
+- 포터 어간 추출기는 정밀하게 설계되어 정확도가 높으므로 영어 자연어 처리에서 어간을 추출하고자 하면 적절한 선택임
+
 ```python
 from nltk.stem import PorterStemmer
+from nltk.tokenize import word_tokenize
 
 stemmer = PorterStemmer()
-words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'meeting']
 
-for word in words:
-print(f'{word} → {stemmer.stem(word)}')
+sentence = "This was not the map we found in Billy Bones's chest, but an accurate copy, complete in all things--names and heights and soundings--with the single exception of the red crosses and the written notes."
+tokenized_sentence = word_tokenize(sentence)
+
+print('어간 추출 전 :', tokenized_sentence)
+print('어간 추출 후 :',[stemmer.stem(word) for word in tokenized_sentence])
 ```
 ```python
-결과:
-policy → polici
-doing → do
-organization → organ
-have → have
-going → go
-love → love
-lives → live
-fly → fli
-meeting → meet
+어간 추출 전 : ['This', 'was', 'not', 'the', 'map', 'we', 'found', 'in', 'Billy', 'Bones', "'s", 'chest', ',', 'but', 'an', 'accurate', 'copy', ',', 'complete', 'in', 'all', 'things', '--', 'names', 'and', 'heights', 'and', 'soundings', '--', 'with', 'the', 'single', 'exception', 'of', 'the', 'red', 'crosses', 'and', 'the', 'written', 'notes', '.']
+어간 추출 후 : ['thi', 'wa', 'not', 'the', 'map', 'we', 'found', 'in', 'billi', 'bone', "'s", 'chest', ',', 'but', 'an', 'accur', 'copi', ',', 'complet', 'in', 'all', 'thing', '--', 'name', 'and', 'height', 'and', 'sound', '--', 'with', 'the', 'singl', 'except', 'of', 'the', 'red', 'cross', 'and', 'the', 'written', 'note', '.']
 ```
 
-- ‘have’, ‘love’는 변화 없음 → 포터 알고리즘이 형태 변화 없다고 판단한 경우
+**✅ [Porter와 Lancaster 비교 예제 코드 및 결과]**
+```python
+from nltk.stem import PorterStemmer
+from nltk.stem import LancasterStemmer
+
+porter_stemmer = PorterStemmer()
+lancaster_stemmer = LancasterStemmer()
+
+words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'dies', 'watched', 'has', 'starting']
+print('어간 추출 전 :', words)
+print('포터 스테머의 어간 추출 후:',[porter_stemmer.stem(w) for w in words])
+print('랭커스터 스테머의 어간 추출 후:',[lancaster_stemmer.stem(w) for w in words])
+```
+```python
+어간 추출 전 : ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'dies', 'watched', 'has', 'starting']
+포터 스테머의 어간 추출 후: ['polici', 'do', 'organ', 'have', 'go', 'love', 'live', 'fli', 'die', 'watch', 'ha', 'start']
+랭커스터 스테머의 어간 추출 후: ['policy', 'doing', 'org', 'hav', 'going', 'lov', 'liv', 'fly', 'die', 'watch', 'has', 'start']
+```
 
 ---
 
 ### 📌 표제어 추출 (Lemmatization)
 
 - 단어의 **표제어(lemma)** 를 찾아가는 작업
+- 단어들이 다른 형태를 가지더라도, 그 뿌리 단어(=표제어)를 찾아가서 단어의 개수를 줄임
 - 문맥과 품사를 고려하여 변형된 단어를 그 **기본형**으로 복원
 - 어간 추출보다 정확도 높지만, 속도는 느림
 
 **[예시]**
-```
+```python
 am, are, is → be
 ```
 
-- 사전(dictionary)을 참고하여 의미 기반으로 복원
+**[형태학적 파싱]**
+- 어간과 접사를 분리하는 작업
+  - cats : cat(어간)와 -s(접사)를 분리
+  - fox : 더 이상 분리할 수 없음
 
-**✅ [WordNet Lemmatizer 예제 코드 및 결과]**
+**✅ [NLTK의 WordNetLemmatizer 예제 코드 및 결과]**
+
+- 단어의 형태가 적절히 보존되지만, 
+- dy나 ha와 같이 의미를 알 수 없는 적절하지 못한 단어를 출력
+- 본래 단어의 품사 정보를 알아야만 정확한 결과를 얻을 수 있음 → **품사 명시 필요**
+
 ```python
 from nltk.stem import WordNetLemmatizer
 
 lemmatizer = WordNetLemmatizer()
-words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'meeting']
 
-for word in words:
-print(f'{word} → {lemmatizer.lemmatize(word)}')
+words = ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'dies', 'watched', 'has', 'starting']
+
+print('표제어 추출 전 :',words)
+print('표제어 추출 후 :',[lemmatizer.lemmatize(word) for word in words])
 ```
 ```python
-결과:
-policy → policy
-doing → doing
-organization → organization
-have → have
-going → going
-love → love
-lives → life
-fly → fly
-meeting → meeting
+표제어 추출 전 : ['policy', 'doing', 'organization', 'have', 'going', 'love', 'lives', 'fly', 'dies', 'watched', 'has', 'starting']
+표제어 추출 후 : ['policy', 'doing', 'organization', 'have', 'going', 'love', 'life', 'fly', 'dy', 'watched', 'ha', 'starting']
 ```
-- 기본적으로 명사로 판단하여 동사 등의 경우 **품사 명시 필요**
 
-**✅ [품사 명시 예제]**
+**✅ [WordNetLemmatizer의 품사 명시 예제]**
+```python
+lemmatizer.lemmatize('doing', 'v') → do
+lemmatizer.lemmatize('fly', 'v') → fly
 ```
-lemmatizer.lemmatize('doing', pos='v') → do
-lemmatizer.lemmatize('fly', pos='v') → fly
-```
+
+| 입력 문장     | Stemming 결과 | Lemmatization 결과 |
+| --------- | ----------- | ---------------- |
+| am        | am          | be               |
+| the going | the go      | the going        |
+| having    | hav         | have             |
 
 ---
 
-### 📌 어간 추출 vs 표제어 추출 요약 비교
+### 📌 한국어에서의 어간 추출
 
-| 항목 | 어간 추출 (Stemming) | 표제어 추출 (Lemmatization) |
-|------|-----------------------|------------------------------|
-| 방법 | 단순 규칙 기반 절단     | 사전 기반 변환               |
-| 속도 | 빠름                  | 느림                         |
-| 정확도 | 낮음 (문맥 고려 안 함) | 높음 (문맥 및 품사 고려)     |
-| 예시 | policy → polici       | lives → life                |
+- 용언(동사, 형용사)의 경우 어간+어미 결합
+- 규칙활용 : 어간은 활용시에도 불변, 어미는 활용시 형태가 변화 → 분리 용이
+- 불규칙활용 : 어간/어미 분리를 위해 보다 복잡한 규칙을 적용해야 함..
+
 
 <br><br><br>
 
