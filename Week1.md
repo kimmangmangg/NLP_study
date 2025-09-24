@@ -341,10 +341,82 @@ lemmatizer.lemmatize('fly', pos='v') → fly
 
 <br><br><br>
 
+## 2-4. 불용어(Stopword)
 
-## 2-4. 불용어
+불용어(stopword)란 문장에서 자주 등장하지만 문맥상 큰 의미를 가지지 않는 단어를 말함.  
+예: 영어의 a, the, in / 한국어의 조사, 접속사, 감탄사 등
 
-## 2-5. 정규 표현식
+---
+
+### 📌 불용어의 필요성
+
+- 텍스트 데이터에는 의미를 크게 담고 있지 않은 단어가 다수 존재함
+- 이들을 제거하면:
+  - 데이터 크기 감소
+  - 연산 효율 향상
+  - 불필요한 노이즈 제거 가능
+- 하지만 특정 작업에서는 불용어가 의미를 가질 수도 있으므로 **목적에 따라 제거 여부 결정** 필요함
+
+---
+
+### 📌 불용어 제거 방법 (영어)
+
+- NLTK는 영어 불용어 사전을 제공함.  
+- 불용어 리스트를 불러오고, 토큰화된 단어 중 불용어를 제거할 수 있음.
+
+**[NLTK 불용어 제거 예시]**
+```python
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+stop_words = set(stopwords.words('english'))
+example = "Family is not an important thing. It's everything."
+word_tokens = word_tokenize(example)
+
+result = []
+for w in word_tokens:
+    if w not in stop_words:
+        result.append(w)
+
+print(result)
+```
+```python
+['Family', 'important', 'thing', '.', 'It', "'s", 'everything', '.']
+```
+### 📌 불용어 제거 방법 (한국어)
+
+- 한국어는 불용어 사전이 내장되어 있지 않음
+- 한국어의 경우 불용어 사전을 직접 구축한 후 제거해야 함
+- 예: 의, 가, 이, 은, 들, 는, 좀, 잘, 걍, 과, 도, 를, 으로, 자, 에, 와, 한, 하다 등
+
+**[한국어 불용어 제거 예시]**
+```python
+from nltk.tokenize import word_tokenize
+
+example = "나는 자연어 처리를 배우고 있습니다"
+stop_words = ['는', '고', '을', '이']
+
+word_tokens = word_tokenize(example)
+result = [word for word in word_tokens if word not in stop_words]
+
+print(result)
+```
+```python
+['나', '자연어', '처리', '배우', '있습니다']
+```
+
+<br><br><br>
+
+## 2-5. 정규 표현식(Regular Expression)
+
+1. 정규 표현식은 문자열에서 **특정 패턴을 찾고, 추출, 치환**하는 데 사용하는 강력한 도구임.  
+2. 토큰화, 정제, 정규화 과정에서 불필요한 기호 제거, 특정 단어 추출 등에 활용됨.  
+3. 메타문자(`. ^ $ * + ? { } [ ] \ | ( )`)를 사용하여 다양한 패턴 정의 가능함.  
+4. 파이썬의 `re` 모듈을 사용해 `match`, `search`, `findall`, `sub` 등의 함수로 정규 표현식을 적용할 수 있음.  
+5. 자연어 처리에서는 텍스트에서 **이메일, URL, 숫자, 특수문자 제거** 등 전처리에 자주 사용됨.  
+> 자세한 내용은 링크(https://wikidocs.net/21703)
+
+<br><br><br>
 
 ## 2-6. 정수 인코딩
 
