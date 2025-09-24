@@ -363,8 +363,8 @@ lemmatizer.lemmatize('fly', 'v') → fly
 
 ## 2-4. 불용어(Stopword)
 
-불용어(stopword)란 문장에서 자주 등장하지만 문맥상 큰 의미를 가지지 않는 단어를 말함.  
-예: 영어의 a, the, in / 한국어의 조사, 접속사, 감탄사 등
+- 불용어(stopword)란 문장에서 자주 등장하지만 문맥상 큰 의미를 가지지 않는 단어를 말함.  
+- 예: 영어의 a, the, in, I, my, me, over / 한국어의 조사, 접속사, 접미사 등
 
 ---
 
@@ -381,10 +381,10 @@ lemmatizer.lemmatize('fly', 'v') → fly
 
 ### 📌 불용어 제거 방법 (영어)
 
-- NLTK는 영어 불용어 사전을 제공함.  
+- NLTK는 영어 불용어 사전을 제공함.(내장된 불용어 사전이 있음)  
 - 불용어 리스트를 불러오고, 토큰화된 단어 중 불용어를 제거할 수 있음.
 
-**[NLTK 불용어 제거 예시]**
+**✅ [NLTK 불용어 제거 예시]**
 ```python
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -403,26 +403,37 @@ print(result)
 ```python
 ['Family', 'important', 'thing', '.', 'It', "'s", 'everything', '.']
 ```
+
+---
+
 ### 📌 불용어 제거 방법 (한국어)
 
+- 불용어는 개발자가 직접 정의할 수도 있음
 - 한국어는 불용어 사전이 내장되어 있지 않음
 - 한국어의 경우 불용어 사전을 직접 구축한 후 제거해야 함
 - 예: 의, 가, 이, 은, 들, 는, 좀, 잘, 걍, 과, 도, 를, 으로, 자, 에, 와, 한, 하다 등
 
-**[한국어 불용어 제거 예시]**
+**✅ [한국어 불용어 제거 예시]**
 ```python
-from nltk.tokenize import word_tokenize
+from konlpy.tag import Okt
 
-example = "나는 자연어 처리를 배우고 있습니다"
-stop_words = ['는', '고', '을', '이']
+okt = Okt()
 
-word_tokens = word_tokenize(example)
-result = [word for word in word_tokens if word not in stop_words]
+example = "고기를 아무렇게나 구우려고 하면 안 돼. 고기라고 다 같은 게 아니거든. 예컨대 삼겹살을 구울 때는 중요한 게 있지."
+stop_words = "를 아무렇게나 구 우려 고 안 돼 같은 게 구울 때 는"
 
-print(result)
+stop_words = set(stop_words.split(' '))
+word_tokens = okt.morphs(example)
+
+result = [word for word in word_tokens if not word in stop_words]
+
+print('불용어 제거 전 :',word_tokens) 
+print('불용어 제거 후 :',result)
+
 ```
 ```python
-['나', '자연어', '처리', '배우', '있습니다']
+불용어 제거 전 : ['고기', '를', '아무렇게나', '구', '우려', '고', '하면', '안', '돼', '.', '고기', '라고', '다', '같은', '게', '아니거든', '.', '예컨대', '삼겹살', '을', '구울', '때', '는', '중요한', '게', '있지', '.']
+불용어 제거 후 : ['고기', '하면', '.', '고기', '라고', '다', '아니거든', '.', '예컨대', '삼겹살', '을', '중요한', '있지', '.']
 ```
 
 <br><br><br>
