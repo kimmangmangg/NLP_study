@@ -418,7 +418,67 @@ print(result)
 
 <br><br><br>
 
-## 2-6. 정수 인코딩
+## 2-6. 정수 인코딩(Integer Encoding)
+
+단어를 숫자로 변환하여 컴퓨터가 처리할 수 있도록 하는 과정.  
+자연어 처리를 위해 텍스트 데이터를 수치화하는 가장 기초적인 방법 중 하나임.
+
+---
+
+### 📌 정수 인코딩 필요성
+
+- 기계 학습 모델은 텍스트가 아닌 **숫자 벡터**만 입력으로 처리 가능함
+- 단어를 고유한 정수에 매핑해 문장을 수치화
+- 이후 원-핫 인코딩, 워드 임베딩 등 더 발전된 기법의 기반이 됨
+
+---
+
+### 📌 단어 집합(Vocabulary) 구축
+
+- 코퍼스의 모든 단어를 중복 제거하여 리스트화 → 단어 집합(vocabulary)
+- 각 단어에 고유한 인덱스를 부여
+- 빈도수 기반으로 정렬하여 인덱스를 부여하기도 함
+
+---
+
+### 📌 파이썬 실습 예시
+
+**[단어 집합 만들기]**
+```python
+from nltk.tokenize import word_tokenize
+
+sentence = "The earth is an awesome place live"
+tokens = word_tokenize(sentence)
+print(tokens)
+```
+```python
+['The', 'earth', 'is', 'an', 'awesome', 'place', 'live']
+```
+
+**[정수 인코딩]**
+```python
+vocab = {t: i for i, t in enumerate(tokens)}
+print(vocab)
+```
+```python
+{'The': 0, 'earth': 1, 'is': 2, 'an': 3, 'awesome': 4, 'place': 5, 'live': 6}
+```
+
+---
+
+### 📌 케라스(Keras) 활용
+- `Tokenizer` 객체를 이용해 단어 집합 자동 생성 및 정수 인코딩 가능
+```python
+from tensorflow.keras.preprocessing.text import Tokenizer
+
+sentences = ["The earth is an awesome place live", "The earth is great place live"]
+tokenizer = Tokenizer()
+tokenizer.fit_on_texts(sentences)
+
+print(tokenizer.word_index)  # 단어 집합
+print(tokenizer.texts_to_sequences(sentences))  # 정수 인코딩 결과
+```
+<br><br><br>
 
 ## 2-7. 패딩
 
