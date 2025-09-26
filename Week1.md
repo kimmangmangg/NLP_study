@@ -451,8 +451,8 @@ print('불용어 제거 후 :',result)
 
 ## 2-6. 정수 인코딩(Integer Encoding)
 
-단어를 숫자로 변환하여 컴퓨터가 처리할 수 있도록 하는 과정.  
-자연어 처리를 위해 텍스트 데이터를 수치화하는 가장 기초적인 방법 중 하나임.
+- 단어를 숫자로 변환하여 컴퓨터가 처리할 수 있도록 하는 과정.  
+- 자연어 처리를 위해 텍스트 데이터를 수치화하는 가장 기초적인 방법 중 하나임.
 
 ---
 
@@ -464,50 +464,242 @@ print('불용어 제거 후 :',result)
 
 ---
 
-### 📌 단어 집합(Vocabulary) 구축
+### 📌 단어 집합(Vocabulary) - dictionary 자료형 사용하기
 
+- 빈도수 기반으로 정렬하여 단어 집합 구축 → 빈도수가 낮은 숫자부터 정수 인덱스를 부여
 - 코퍼스의 모든 단어를 중복 제거하여 리스트화 → 단어 집합(vocabulary)
 - 각 단어에 고유한 인덱스를 부여
 - 빈도수 기반으로 정렬하여 인덱스를 부여하기도 함
 
 
-**✅ [단어 집합 만들기 예시 코드 및 결과]**
+**✅ [문장 토큰화 예시 코드 및 결과]**
 ```python
+from nltk.tokenize import sent_tokenize
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 
-sentence = "The earth is an awesome place live"
-tokens = word_tokenize(sentence)
-print(tokens)
+raw_text = "A barber is a person. a barber is good person. a barber is huge person. he Knew A Secret! The Secret He Kept is huge secret. Huge secret. His barber kept his word. a barber kept his word. His barber kept his secret. But keeping and keeping such a huge secret to himself was driving the barber crazy. the barber went up a huge mountain."
+
+# 문장 토큰화
+sentences = sent_tokenize(raw_text)
+print(sentences)
 ```
 ```python
-['The', 'earth', 'is', 'an', 'awesome', 'place', 'live']
+['A barber is a person.', 'a barber is good person.', 'a barber is huge person.', 'he Knew A Secret!', 'The Secret He Kept is huge secret.', 'Huge secret.', 'His barber kept his word.', 'a barber kept his word.', 'His barber kept his secret.', 'But keeping and keeping such a huge secret to himself was driving the barber crazy.', 'the barber went up a huge mountain.']
+
 ```
 
+**✅ [단어 토큰화 예시 코드 및 결과]**
+```python
+vocab = {}
+preprocessed_sentences = []
+stop_words = set(stopwords.words('english'))
+
+for sentence in sentences:
+    # 단어 토큰화
+    tokenized_sentence = word_tokenize(sentence)
+    result = []
+
+    for word in tokenized_sentence: 
+        word = word.lower() # 모든 단어를 소문자화하여 단어의 개수를 줄인다.
+        if word not in stop_words: # 단어 토큰화 된 결과에 대해서 불용어를 제거한다.
+            if len(word) > 2: # 단어 길이가 2이하인 경우에 대하여 추가로 단어를 제거한다.
+                result.append(word)
+                if word not in vocab:
+                    vocab[word] = 0 
+                vocab[word] += 1
+    preprocessed_sentences.append(result) 
+print(preprocessed_sentences)
+
+```
+```python
+[['barber', 'person'], ['barber', 'good', 'person'], ['barber', 'huge', 'person'], ['knew', 'secret'], ['secret', 'kept', 'huge', 'secret'], ['huge', 'secret'], ['barber', 'kept', 'word'], ['barber', 'kept', 'word'], ['barber', 'kept', 'secret'], ['keeping', 'keeping', 'huge', 'secret', 'driving', 'barber', 'crazy'], ['barber', 'went', 'huge', 'mountain']]
+```
+- 현재 vocab에는 각 단어에 대한 빈도수가 기록
+```python
+print('단어 집합 :',vocab)
+```
+```python
+단어 집합 : {'barber': 8, 'person': 3, 'good': 1, 'huge': 5, 'knew': 1, 'secret': 6, 'kept': 4, 'word': 2, 'keeping': 2, 'driving': 1, 'crazy': 1, 'went': 1, 'mountain': 1}
+```
+- 딕셔너리 구조 : 단어를 키로, 빈도수를  값으로 저장
+```python
+# 'barber'라는 단어의 빈도수 출력
+print(vocab["barber"])
+```
+```python
+8
+```
+- 빈도수가 높은 순서대로 정렬한 후,
+- 높은 빈도수를 가진 단어일수록 낮은 정수 부여 (정수는 1부터 부여)
+```python
+# 빈도수가 높은 순서대로 정렬
+vocab_sorted = sorted(vocab.items(), key = lambda x:x[1], reverse = True)
+print(vocab_sorted)
+
+# 높은 빈도수를 가진 단어일수록 낮은 정수를 부여
+word_to_index = {}
+i = 0
+for (word, frequency) in vocab_sorted :
+    if frequency > 1 : # 빈도수가 작은 단어는 제외.
+        i = i + 1
+        word_to_index[word] = i
+
+print(word_to_index)
+```
+```python
+{'barber': 1, 'secret': 2, 'huge': 3, 'kept': 4, 'person': 5, 'word': 6, 'keeping': 7}
+```
+- 자연어 처리를 하다보면, 텍스트 데이터에 있는 단어를 모두 사용하기 보다는 빈도수가 가장 높은 n개의 단어만 사용하고 싶은 경우
+- 빈도수가 적은 단어의 경우 전체적인 영향력이 적은 경우 다수 (의미x 단어)
+- 빈도수 상위 n개의 단어만 사용하고 싶다고하면?
+```python
+vocab_size = 5
+
+# 인덱스가 5 초과인 단어 제거
+words_frequency = [word for word, index in word_to_index.items() if index >= vocab_size + 1]
+
+# 해당 단어에 대한 인덱스 정보를 삭제
+for w in words_frequency:
+    del word_to_index[w]
+print(word_to_index)
+```
+```python
+{'barber': 1, 'secret': 2, 'huge': 3, 'kept': 4, 'person': 5}
+```
 
 **✅ [정수 인코딩 예시 코드 및 결과]**
+- 단어 토큰화된 결과를 바탕으로 정수 인코딩 진행
+- word_to_index에는 빈도수가 높은 상위 5개의 단어만 저장
+- word_to_index를 사용하여 단어 토큰화가 된 상태로 저장된 sentences에 있는 각 단어를 정수로 바꾸는 작업 수행
+- BUT,더 이상 word_to_index에는 존재하지 않는 단어의 인코딩? → OOV(Out-Of-Vocabulary)라는 단어를 추가해서 해당 인덱스로 인코딩
 ```python
-vocab = {t: i for i, t in enumerate(tokens)}
-print(vocab)
+word_to_index['OOV'] = len(word_to_index) + 1
+print(word_to_index)
 ```
 ```python
-{'The': 0, 'earth': 1, 'is': 2, 'an': 3, 'awesome': 4, 'place': 5, 'live': 6}
+{'barber': 1, 'secret': 2, 'huge': 3, 'kept': 4, 'person': 5, 'OOV': 6}
+```
+- 정수로 인코딩
+```python
+encoded_sentences = []
+for sentence in preprocessed_sentences:
+    encoded_sentence = []
+    for word in sentence:
+        try:
+            # 단어 집합에 있는 단어라면 해당 단어의 정수를 리턴.
+            encoded_sentence.append(word_to_index[word])
+        except KeyError:
+            # 만약 단어 집합에 없는 단어라면 'OOV'의 정수를 리턴.
+            encoded_sentence.append(word_to_index['OOV'])
+    encoded_sentences.append(encoded_sentence)
+print(encoded_sentences)
+```
+```python
+[[1, 5], [1, 6, 5], [1, 3, 5], [6, 2], [2, 4, 3, 2], [3, 2], [1, 4, 6], [1, 4, 6], [1, 4, 2], [6, 6, 3, 2, 6, 1, 6], [1, 6, 3, 6]]
+```
+- dictionary 자료형으로 정수 인코딩을 하는 것보다 좀 더 쉽게 하기 위해서
+- Counter, FreqDist+enumerate 혹은, 케라스 토크나이저 사용 가능!
+
+---
+
+**✅ [Counter 활용 예시 코드 및 결과]**
+- 단어 토큰화 이후 과정~
+```python
+from collections import Counter
+
+# 하나의 단어씩 떨궈놓기
+# 현재 preprocessed_sentences에는 단어 토큰화가 된 결과가 저장
+# words = np.hstack(preprocessed_sentences)으로도 수행 가능.
+all_words_list = sum(preprocessed_sentences, [])
+
+# 파이썬의 Counter 모듈을 이용하여 단어의 빈도수 카운트
+# 다시 단어를 키로, 빈도수를 값으로 하는 딕셔너리 생성
+vocab = Counter(all_words_list)
+
+vocab_size = 5
+vocab = vocab.most_common(vocab_size) # 등장 빈도수가 높은 상위 5개의 단어만 저장
+
+# 높은 빈도수를 가진 단어일수록 낮은 정수 인덱스 부여
+word_to_index = {}
+i = 0
+for (word, frequency) in vocab :
+    i = i + 1
+    word_to_index[word] = i
+
+print(word_to_index)
+```
+```python
+{'barber': 1, 'secret': 2, 'huge': 3, 'kept': 4, 'person': 5}
 ```
 
+---
 
-**✅ [케라스(Keras) 활용 예시 코드 및 결과]**
-- `Tokenizer` 객체를 이용해 단어 집합 자동 생성 및 정수 인코딩 가능
+**✅ [NLTK의 FreqDist 활용 예시 코드 및 결과]**
+- NLTK에서는 빈도수 계산 도구인 FreqDist()를 지원
+- Counter()를 사용했을 때와 결과가 같음
+- 인덱스를 부여할 때 enumerate()를 사용하는 것이 편리한 점!
+  - enumerate()는 순서가 있는 자료형(list, set, tuple, dictionary, string)을 입력으로 받아
+  - 인덱스를 순차적으로 함께 리턴함 (0,1,2,3, ...,n-1)
+```python
+from nltk import FreqDist
+import numpy as np
+
+# np.hstack으로 문장 구분을 제거
+# 단어를 키(key)로, 단어에 대한 빈도수가 값(value)으로 저장
+vocab = FreqDist(np.hstack(preprocessed_sentences))
+
+vocab_size = 5
+vocab = vocab.most_common(vocab_size) # 등장 빈도수가 높은 상위 5개의 단어만 저장
+
+# enumerate 사용
+word_to_index = {word[0] : index + 1 for index, word in enumerate(vocab)}
+print(word_to_index)
+```
+```python
+{'barber': 1, 'secret': 2, 'huge': 3, 'kept': 4, 'person': 5}
+```
+
+---
+
+### 📌 정수 인코딩 - 케라스(Keras)의 Tokenizer 사용하기
+- 역시 단어 토큰화까지 진행된 데이터 preprocessed_sentences부터 사용
+- OOV에 대해서는 단어를 정수로 바꾸는 과정에서 아예 단어를 제거
+- OOV로 간주하여 보존하고 싶다면 Tokenizer의 인자 oov_token을 사용해야 함
 ```python
 from tensorflow.keras.preprocessing.text import Tokenizer
 
-sentences = ["The earth is an awesome place live", "The earth is great place live"]
-tokenizer = Tokenizer()
-tokenizer.fit_on_texts(sentences)
+preprocessed_sentences = [['barber', 'person'], ['barber', 'good', 'person'], ['barber', 'huge', 'person'], ['knew', 'secret'], ['secret', 'kept', 'huge', 'secret'], ['huge', 'secret'], ['barber', 'kept', 'word'], ['barber', 'kept', 'word'], ['barber', 'kept', 'secret'], ['keeping', 'keeping', 'huge', 'secret', 'driving', 'barber', 'crazy'], ['barber', 'went', 'huge', 'mountain']]
 
-print(tokenizer.word_index)  # 단어 집합
-print(tokenizer.texts_to_sequences(sentences))  # 정수 인코딩 결과
+tokenizer = Tokenizer()
+
+# fit_on_texts()- 단어 빈도수가 높은 순으로 낮은 정수 인덱스를 부여
+tokenizer.fit_on_texts(preprocessed_sentences) 
+
+# 인덱스가 어떻게 부여되었는지 보려면 - print(tokenizer.word_index)
+# 각 단어가 카운트를 수행하였을 때 몇 개였는지 - print(tokenizer.word_counts)
+# 인덱스로 변환 - print(tokenizer.texts_to_sequences(preprocessed_sentences))
+
+vocab_size = 5
+tokenizer = Tokenizer(num_words = vocab_size + 1) # 상위 5개 단어만 사용
+tokenizer.fit_on_texts(preprocessed_sentences)
+
+# 상위 5개 단어만 사용하는 것이 적용되는것은 texts_to_sequences를 사용할 때임
 ```
+```python
+# 만약에, 숫자 0과 OOV를 고려한다면, 단어 집합의 크기는 +2
+vocab_size = 5
+tokenizer = Tokenizer(num_words = vocab_size + 2, oov_token = 'OOV')
+tokenizer.fit_on_texts(preprocessed_sentences)
+```
+```python
+단어 OOV의 인덱스 : 1
+```
+- 빈도수 상위 5개의 단어는 2 ~ 6까지의 인덱스를 가졌으며, 'OOV'들의 인덱싱은 전부 1로 진행.
+
 
 <br><br><br>
+
 
 ## 2-7. 패딩(Padding)
 
