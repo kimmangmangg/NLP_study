@@ -57,10 +57,8 @@
 - 밀집 표현은 저차원 실수 벡터로 의미 반영 가능
 - 워드 임베딩은 단어를 밀집 벡터로 표현하는 표준 기법
 - 임베딩 벡터는 학습을 통해 단어 간 관계를 반영
-<br><br>
----
-<br>
 
+---
 
 ## 09-02. 워드투벡터(Word2Vec)<br>
 
@@ -112,7 +110,75 @@
 * Skip-gram: 중심 단어로 주변 단어 예측
 * 단어 간 의미적 관계를 벡터 공간에서 학습 가능
 
-<br><br>
+---
+
+## 09-03. 영어/한국어 Word2Vec 실습<br>
+
+* Word2Vec을 gensim 라이브러리를 사용하여 실습하는 예제임.
+* 영어와 한국어 데이터셋을 활용하여 CBOW/Skip-gram 모델을 학습하고 단어 유사도를 확인함.
+
+### 1) 영어 Word2Vec 실습
+
+* **데이터**: NLTK의 `text8` 데이터 사용 (약 1700만 단어)
+
+* **전처리**: 토큰화된 문장 리스트 형태 준비
+
+* **모델 학습**
+
+  ```python
+  from gensim.models import Word2Vec
+  from nltk.corpus import text8
+
+  dataset = text8.sents()
+  model = Word2Vec(sentences=dataset, size=100, window=5, sg=0, min_count=5, workers=4)
+  ```
+
+  * `size=100`: 임베딩 차원
+  * `window=5`: 학습 시 고려할 주변 단어 크기
+  * `sg=0`: CBOW (sg=1이면 Skip-gram)
+  * `min_count=5`: 최소 5회 이상 등장 단어만 학습
+
+* **유사도 확인**
+
+  ```python
+  print(model.wv.most_similar("man"))
+  print(model.wv.similarity("man", "woman"))
+  ```
+
+  * 의미적으로 유사한 단어들을 벡터 공간에서 찾을 수 있음
+
+### 2) 한국어 Word2Vec 실습
+
+* **데이터**: 한국어 문장을 토큰화 후 학습
+* **전처리**: `Okt` 형태소 분석기로 문장을 토큰화
+
+  ```python
+  from konlpy.tag import Okt
+
+  okt = Okt()
+  tokenized = [okt.morphs(sentence) for sentence in korean_sentences]
+  ```
+* **모델 학습**
+
+  ```python
+  model_ko = Word2Vec(sentences=tokenized, size=100, window=5, sg=1, min_count=5, workers=4)
+  ```
+
+  * `sg=1`: Skip-gram 모델
+* **유사도 확인**
+
+  ```python
+  print(model_ko.wv.most_similar("강아지"))
+  ```
+
+  * 한국어에서도 의미 유사 단어들을 확인 가능
+
+### 📌 핵심 정리
+
+* Word2Vec 실습은 `gensim` 패키지를 주로 활용함
+* CBOW(sg=0), Skip-gram(sg=1) 선택 가능
+* 영어(NLTK text8), 한국어(Okt 토큰화) 모두 학습 가능
+* 학습된 모델은 단어 간 유사도를 계산하여 의미 관계를 파악할 수 있음
 
 ---
-<br>
+
